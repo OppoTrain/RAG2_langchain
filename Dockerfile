@@ -7,10 +7,10 @@ WORKDIR /app
 COPY app/requirements.txt ./
 
 # Install backend dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the backend code
-COPY app/ ./
+COPY app/ ./ .env ./
 
 # Expose FastAPI port
 EXPOSE 8000
@@ -28,7 +28,7 @@ WORKDIR /frontend
 COPY frontend/requirements.txt ./
 
 # Install frontend dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the frontend code
 COPY frontend/ ./

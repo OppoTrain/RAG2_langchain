@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from app.models import QueryModel
-from app.services.summarizer_service import display_summarized_results
-from app.config import client, together_client
+from models import QueryModel
+from services.summarizer_service import display_summarized_results
+from config import client, together_client
 
 router = APIRouter()
 

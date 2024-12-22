@@ -2,7 +2,7 @@ import streamlit as st
 import httpx
 
 # API URL for chat summarization
-API_URL = "http://127.0.0.1:8000/summarize"
+API_URL = "http://172.18.0.2:8000/summarize"
 
 # Chat container styling
 st.markdown(
@@ -52,7 +52,7 @@ st.markdown(
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Hi there, I'm Kuki 👋\nI'm a friendly AI, here to chat with you 24/7.\nWhat is your name? 😊"}
+        {"role": "assistant", "content": "Hi there, I'm a humani 👋\nI'm a friendly AI, here to chat with you 24/7.\nWhat is your name? 😊"}
     ]
 
 # Initialize user input
@@ -67,9 +67,9 @@ def handle_user_input():
         st.session_state.messages.append({"role": "user", "content": user_query})
 
         # Generate bot response
-        with st.spinner("Kuki is thinking..."):
+        with st.spinner("humani is thinking..."):
             try:
-                response = httpx.post(API_URL, json={"query_text": user_query}, timeout=30)
+                response = httpx.post(API_URL, json={"query_text": user_query}, timeout=300)
                 response.raise_for_status()
                 summary = response.json().get("summary") or response.json().get("message")
 

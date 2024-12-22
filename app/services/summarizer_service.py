@@ -1,6 +1,6 @@
-from app.config import hf_embedding_function
-from app.services.chroma_service import initial_query
-from app.services.similarity_service import filter_by_similarity, apply_mmr ,calculate_cosine_similarity
+from config import hf_embedding_function
+from services.chroma_service import initial_query
+from services.similarity_service import filter_by_similarity, apply_mmr ,calculate_cosine_similarity
 import numpy as np
 conversation_data = {
     "hello": "Hi there! How can I assist you today?",
@@ -25,12 +25,11 @@ def find_best_match(user_input, embeddings, threshold=0.55):
 
     
 summarization_prompt = """
-Summarize the following document based on the question in a structured format:
+
+answer the question based on this document
 Question: {question}
 Document: {document}
 
-Introduction about the topic question
-Conclusion: Summary of the document including the answer to the question
 """
 
 unknown_info_template = """

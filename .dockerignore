@@ -4,7 +4,6 @@
 app/services/__pycache__
 app/routes/__pycache__
 # Environment variables
-.env
 
 # Git-related files
 .git
@@ -13,7 +12,6 @@ app/routes/__pycache__
 # System files
 .DS_Store
 Thumbs.db
-chromadb
 
 # Virtual environment
 venv/
@@ -21,7 +19,6 @@ env/
 __pycache__
 
 *.log
-*.sqlite3
 
 # Local development files
 *.swp

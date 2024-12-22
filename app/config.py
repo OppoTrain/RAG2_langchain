@@ -8,6 +8,7 @@ import chromadb
 load_dotenv()
 
 CHROMADB_PATH = os.getenv("CHROMADB_PATH")
+print(CHROMADB_PATH)
 TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 client=chromadb.PersistentClient(path=CHROMADB_PATH)
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
