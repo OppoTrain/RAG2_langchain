@@ -9,13 +9,4 @@ services:
     volumes:
       - ./app:/app
     env_file: 
-      - .env 
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: frontend
-    ports:
-      - "8501:8501"
-    volumes:
-      - ./frontend:/frontend
+      - .env

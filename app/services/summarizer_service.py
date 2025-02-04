@@ -1,7 +1,11 @@
-from config import hf_embedding_function
-from services.chroma_service import initial_query
-from services.similarity_service import filter_by_similarity, apply_mmr ,calculate_cosine_similarity
+from app.config import hf_embedding_function
+from app.services.chroma_service import initial_query
+from app.services.similarity_service import filter_by_similarity, apply_mmr ,calculate_cosine_similarity
 import numpy as np
+from deep_translator import GoogleTranslator
+from langdetect import detect
+
+
 conversation_data = {
     "hello": "Hi there! How can I assist you today?",
     "how are you": "I'm just a program, but I'm here to help you!",
@@ -23,10 +27,11 @@ def find_best_match(user_input, embeddings, threshold=0.55):
         return predefined_questions[best_match_index]
     return None
 
-    
+
+
 summarization_prompt = """
 
-answer the question based on this document
+answer the question based on this document , give the answer in the question language.
 Question: {question}
 Document: {document}
 
@@ -52,11 +57,26 @@ Thank you for your question! However, it appears that the information you've pro
 If you have other questions or topics you'd like to discuss, feel free to ask!
 """
 
+# Function to detect the query language
+def get_language(query):
+    try:
+        return detect(query)
+    except Exception as e:
+        print(f"Error detecting language: {e}")
+        return "en"  # Default to English if detection fails
+    
+    # Function to translate text using `deep-translator`
+def translate_text(text, target_language):
+    try:
+        return GoogleTranslator(source='auto', target=target_language).translate(text)
+    except Exception as e:
+        print(f"Error during translation: {e}")
+        return text  # Return the original text if translation fails
+    
 # Function to retrieve final results from ChromaDB
 def retrieve_final_results(client, collection_name, query_embedding, k, lambda_mult, similarity_threshold=0.65):
     # Retrieve the collection
     collection = client.get_collection(name=collection_name)
-
     # Execute the initial query
     initial_results_documents, initial_results_embeddings = initial_query(collection, query_embedding, k)
     # Filter the results based on similarity
@@ -100,7 +120,8 @@ def summarize_with_together_api(tg_client, question, document):
         summary = "Error: Failed to complete summarization."
 
     return summary
-
+    
+        
 # Function to summarize documents
 def summarize_documents(tg_client, question, documents):
     if not documents:
@@ -110,25 +131,37 @@ def summarize_documents(tg_client, question, documents):
     merged_document = " ".join(documents)
     # Summarize the merged document
     summary = summarize_with_together_api(tg_client, question, merged_document)
-    print(summary)
     return summary if summary else "No summary available for the provided documents."
 
 def display_summarized_results(client, tg_client, collection_name, query_text, k, lambda_mult):
-    # Prepare the query embedding
-    best_match = find_best_match(query_text, predefined_embeddings, threshold=0.55)
-    if best_match:
-        # If a predefined response exists, return it
-        return conversation_data[best_match]     
+    # Detect query language
+    query_language = get_language(query_text)
+    print(f"Query language detected: {query_language}")
     
+    # Translate query to English if needed
+    if query_language != "en":
+        query_text = translate_text(query_text, "en")
+    
+    # Check for predefined responses
+    best_match = find_best_match(query_text, predefined_embeddings, threshold=0.7)
+    if best_match:
+        return conversation_data[best_match]
+    
+    # Compute query embedding
     query_embedding = hf_embedding_function.embed_query(query_text)
     query_embedding = np.array(query_embedding).flatten()  # Ensure 1D array
+    
     # Retrieve results
     final_results = retrieve_final_results(client, collection_name, query_embedding, k, lambda_mult)
-    # Generate summaries for the provided documents
+    
+    # Summarize documents
     summaries = summarize_documents(tg_client, query_text, [doc[0] for doc in final_results])
-    # Check if any summaries were generated
+    # If no summaries, return unknown info template
     if not summaries:
-        # Print the unknown information template if no documents are provided or no summaries are generated
         return unknown_info_template
-    else:
-        return summaries
+    
+    # Translate summaries back to original query language if needed
+    if query_language != "en":
+        summaries = translate_text(summaries, query_language) 
+    
+    return summaries

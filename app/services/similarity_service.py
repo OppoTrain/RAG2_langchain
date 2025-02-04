@@ -39,7 +39,6 @@ def apply_mmr(filtered_results, query_embedding, k, lambda_mult):
 
             # Ensure the embedding is a NumPy array and flatten it
             candidate_embedding = np.array(candidate_embedding).flatten()
-            # print(candidate_embedding.shape) #(768)(ddebugging)
             # Compute the mmr score based on the similarity to the query and the selected results
             score = lambda_mult * (1 - cosine(query_embedding, candidate_embedding)) - \
                     (1 - lambda_mult) * min(

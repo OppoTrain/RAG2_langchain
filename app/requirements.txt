@@ -12,3 +12,5 @@ transformers
 firebase-admin
 langchain_huggingface 
 boto3
+langdetect
+deep_translator
